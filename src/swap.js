@@ -3,6 +3,7 @@
   var $ = window.jQuery || window.Zepto;
 
   var Swap = function(cfg) {
+    "use strict";
 
     this.config = {
       defaultProcessor: 'inner'
