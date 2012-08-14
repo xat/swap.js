@@ -5,15 +5,14 @@
   var Swap = function(cfg) {
 
     this.config = {
-      defaultProcessor: 'attr'
+      defaultProcessor: 'inner'
     };
 
     var self = this;
 
     this.conditionals = cfg.conditionals || {};
     this.listeners = cfg.listeners || [];
-
-    this.allListeners = [];
+    this.domListeners = [];
     this.lastCache = {};
 
     this.config = $.extend(this.config, cfg || {});
@@ -31,16 +30,14 @@
     var self = this;
     var rbrace = /^(?:\{.*\}|\[.*\])$/;
 
-    this.allListeners = [];
+    this.domListeners = [];
 
     $('[data-swap]').each(function() {
       var el = this,
           attributes = [].filter.call(this.attributes, function(at) { return /^data-/.test(at.name); });
 
       $.each(attributes, function(key, attr) {
-        var pieces = attr.name.toLowerCase().split('-'),
-            o = {},
-            len = pieces.length;
+        var pieces = attr.name.toLowerCase().split('-'), o = {}, len = pieces.length;
 
         if (len !== 4 && len !== 3)
           return true;
@@ -76,16 +73,14 @@
         })(attr.value);
         o.el = el;
 
-        self.allListeners.push(o);
+        self.domListeners.push(o);
       });
     });
 
-    self.allListeners = self.allListeners.concat(self.allListeners, self.listeners);
   };
 
   Swap.prototype.runTest = function(conditional, test) {
-    var self = this,
-        pass = true;
+    var self = this, pass = true;
 
     try {
       var against = this.tests[test].call(this);
@@ -104,37 +99,25 @@
   };
 
   Swap.prototype.check = function() {
-    var self = this,
-        cache = {};
+    var self = this, cache = {};
 
-    $.each(this.allListeners, function(key, o) {
-      var cacheKey = o.conditional+'#'+o.test;
+    $.each([self.listeners, self.domListeners], function(key, collection) {
+      $.each(collection, function(key, o) {
+        var cacheKey = o.conditional+'#'+o.test;
 
-      if (!isUd(cache[cacheKey])) {
-        if (cache[cacheKey]) {
-          if (!isUd(self.lastCache[cacheKey]))
-            if (self.lastCache[cacheKey] === cache[cacheKey])
-              return true;
+        if (isUd(cache[cacheKey]))
+          cache[cacheKey] = self.runTest(self.conditionals[o.conditional], o.test);
 
-          if (typeof o.processor === 'function')
-            o.processor.call(self, o.param, o.el);
-          else
-            self.processors[o.processor](o.param, o.el);
-        }
-
-        return true;
-      }
-
-      if (cache[cacheKey] = self.runTest(self.conditionals[o.conditional], o.test)) {
         if (!isUd(self.lastCache[cacheKey]))
           if (self.lastCache[cacheKey] === cache[cacheKey])
             return true;
 
-        if (typeof o.processor === 'function')
-          o.processor.call(self, o.param, o.el);
-        else
-          self.processors[o.processor](o.param, o.el);
-      }
+        if (cache[cacheKey])
+          if (typeof o.processor === 'function')
+            o.processor.call(self, o.param, o.el);
+          else
+            self.processors[o.processor](o.param, o.el);
+      });
     });
 
     self.lastCache = cache;
@@ -160,7 +143,11 @@
       return $(window).width();
     },
 
-    'drp': function() {
+    'height': function() {
+      return $(window).height();
+    },
+
+    'dpr': function() {
       if (!isUd(window.devicePixelRatio))
         return window.devicePixelRatio;
       else
@@ -172,7 +159,22 @@
   Swap.prototype.processors = {
 
     'attr': function(param, el) {
+      if (typeof param !== 'object')
+        return false;
+
+      $(el).attr(param);
+    },
+
+    'src': function(param, el) {
+      $(el).attr('src', param);
+    },
+
+    'inner': function(param, el) {
       $(el).html(param);
+    },
+
+    'ref': function(param, el) {
+      $(el).html($(param).html());
     }
 
   };
