@@ -48,7 +48,7 @@
 
     $(selector).each(function() {
       var el = this,
-          attributes = [].filter.call(this.attributes, function(at) { return /^data-/.test(at.name); });
+          attributes = [].filter.call(this.attributes, function(at) { return (/^data-/).test(at.name); });
 
       $.each(attributes, function(key, attr) {
         var pieces = attr.name.toLowerCase().split('-'), o = {}, len = pieces.length;
@@ -65,7 +65,7 @@
 
           o.processor = pieces[3];
         } else
-          o.processor = self.config['defaultProcessor'];
+          o.processor = self.config.defaultProcessor;
 
         o.test = pieces[1];
         o.conditional = pieces[2];
@@ -145,12 +145,12 @@
 
     'resize': function() {
       var self = this;
-      $(window).bind('resize', function() {self.check('resize')});
+      $(window).on('resize', function() { self.check('resize'); });
     },
 
     'domready': function() {
       var self = this;
-      $(document).bind('ready', function() {self.check('ready')});
+      $(document).on('ready', function() { self.check('ready'); });
     }
 
   };
@@ -217,7 +217,7 @@
     },
 
     'not': function(against, val) {
-      return !(against === val);
+      return against !== val;
     }
 
   };
