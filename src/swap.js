@@ -21,18 +21,21 @@
       func.call(self);
     });
 
-    this.refresh();
+    this.rebuild();
 
     return this;
   };
 
-  Swap.prototype.refresh = function() {
+  Swap.prototype.rebuild = function() {
+    this.domListeners = [];
+    this.addArea('[data-swap]');
+  };
+
+  Swap.prototype.addArea = function(selector) {
     var self = this;
     var rbrace = /^(?:\{.*\}|\[.*\])$/;
 
-    this.domListeners = [];
-
-    $('[data-swap]').each(function() {
+    $(selector).each(function() {
       var el = this,
           attributes = [].filter.call(this.attributes, function(at) { return /^data-/.test(at.name); });
 
@@ -60,11 +63,11 @@
           if ( typeof data === "string" ) {
             try {
               data = data === "true" ? true :
-              data === "false" ? false :
-              data === "null" ? null :
-              +data + "" === data ? +data :
-              rbrace.test(data) ? $.parseJSON(data) :
-              data;
+                  data === "false" ? false :
+                      data === "null" ? null :
+                          + data + "" === data ? +data :
+                              rbrace.test(data) ? $.parseJSON(data) :
+                                  data;
             } catch(e) {}
           } else {
             data = undefined;
@@ -72,11 +75,11 @@
           return data;
         })(attr.value);
         o.el = el;
+        o.isDom = true;
 
         self.domListeners.push(o);
       });
     });
-
   };
 
   Swap.prototype.runTest = function(conditional, test, type) {
