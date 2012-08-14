@@ -1,6 +1,6 @@
-(function(window, document) {
+(function(win, document) {
 
-  var $ = window.jQuery || window.Zepto;
+  var $ = win.jQuery || win.Zepto;
 
   var Swap = function(cfg) {
     'use strict';
@@ -143,7 +143,7 @@
 
     'resize': function() {
       var self = this;
-      $(window).on('resize', function() { self.check('resize'); });
+      $(win).on('resize', function() { self.check('resize'); });
     },
 
     'domready': function() {
@@ -159,16 +159,16 @@
   Swap.prototype.tests = {
 
     'width': function() {
-      return $(window).width();
+      return $(win).width();
     },
 
     'height': function() {
-      return $(window).height();
+      return $(win).height();
     },
 
     'dpr': function() {
-      if (!isUd(window.devicePixelRatio))
-        return window.devicePixelRatio;
+      if (!isUd(win.devicePixelRatio))
+        return win.devicePixelRatio;
       else
         throw new Error('not supported');
     }
@@ -233,6 +233,6 @@
     return function(val) {return val;};
   })();
 
-  window.Swap = Swap;
+  win.Swap = Swap;
 
 })(window, document);
