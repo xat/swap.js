@@ -27,13 +27,23 @@
   };
 
   Swap.prototype.rebuild = function() {
-    this.domListeners = [];
+    this.domListeners.length = 0;
     this.addArea('[data-swap]');
+  };
+
+  Swap.prototype.cleanUp = function() {
+    for (var i = (this.domListeners.length-1); i >= 0; i--) {
+      var o = this.domListeners[i];
+      if(!isUd(o.el)) {
+        if (!o.el.parentNode) {
+          this.domListeners.splice(i, 1);
+        }
+      }
+    }
   };
 
   Swap.prototype.addArea = function(selector) {
     var self = this;
-    var rbrace = /^(?:\{.*\}|\[.*\])$/;
 
     $(selector).each(function() {
       var el = this,
@@ -66,7 +76,7 @@
                   data === "false" ? false :
                       data === "null" ? null :
                           + data + "" === data ? +data :
-                              rbrace.test(data) ? $.parseJSON(data) :
+                              /^(?:\{.*\}|\[.*\])$/.test(data) ? $.parseJSON(data) :
                                   data;
             } catch(e) {}
           } else {
@@ -75,7 +85,6 @@
           return data;
         })(attr.value);
         o.el = el;
-        o.isDom = true;
 
         self.domListeners.push(o);
       });
