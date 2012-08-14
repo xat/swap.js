@@ -79,11 +79,15 @@
 
   };
 
-  Swap.prototype.runTest = function(conditional, test) {
-    var self = this, pass = true;
+  Swap.prototype.runTest = function(conditional, test, type) {
+    var self = this, pass = true, t = this.tests[test];
+
+    if (!isUd(t.restrict))
+      if (t.restrict[type])
+        return false;
 
     try {
-      var against = this.tests[test].call(this);
+      var against = t.call(this);
     } catch (e) {
       return false;
     }
@@ -98,15 +102,16 @@
     return pass;
   };
 
-  Swap.prototype.check = function() {
+  Swap.prototype.check = function(type) {
     var self = this, cache = {};
+    type = type || 'manual';
 
     $.each([self.listeners, self.domListeners], function(key, collection) {
       $.each(collection, function(key, o) {
         var cacheKey = o.conditional+'#'+o.test;
 
         if (isUd(cache[cacheKey]))
-          cache[cacheKey] = self.runTest(self.conditionals[o.conditional], o.test);
+          cache[cacheKey] = self.runTest(self.conditionals[o.conditional], o.test, type);
 
         if (!isUd(self.lastCache[cacheKey]))
           if (self.lastCache[cacheKey] === cache[cacheKey])
@@ -127,12 +132,12 @@
 
     'resize': function() {
       var self = this;
-      $(window).bind('resize', function() {self.check()});
+      $(window).bind('resize', function() {self.check('resize')});
     },
 
     'domready': function() {
       var self = this;
-      $(document).bind('ready', function() {self.check()});
+      $(document).bind('ready', function() {self.check('ready')});
     }
 
   };
@@ -155,6 +160,8 @@
     }
 
   };
+
+  Swap.prototype.tests.dpr.restrict = {'resize': true};
 
   Swap.prototype.processors = {
 
