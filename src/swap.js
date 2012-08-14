@@ -3,7 +3,7 @@
   var $ = window.jQuery || window.Zepto;
 
   var Swap = function(cfg) {
-    "use strict";
+    'use strict';
 
     this.config = {
       defaultProcessor: 'inner'
@@ -21,8 +21,6 @@
     $.each(this.whens, function(key, func) {
       func.call(self);
     });
-
-    this.rebuild();
 
     return this;
   };
@@ -77,7 +75,7 @@
                   data === "false" ? false :
                       data === "null" ? null :
                           + data + "" === data ? +data :
-                              /^(?:\{.*\}|\[.*\])$/.test(data) ? $.parseJSON(data) :
+                              /^(?:\{.*\}|\[.*\])$/.test(data) ? parseJSON(data) :
                                   data;
             } catch(e) {}
           } else {
@@ -150,7 +148,10 @@
 
     'domready': function() {
       var self = this;
-      $(document).on('ready', function() { self.check('ready'); });
+      $(document).ready(function() {
+        self.rebuild();
+        self.check('ready');
+      });
     }
 
   };
@@ -225,6 +226,12 @@
   var isUd = function(v) {
     return typeof v === 'undefined';
   };
+
+  var parseJSON = (function() {
+    if (!isUd(JSON)) return JSON.parse;
+    if (!isUd($.parseJSON)) return $.parseJSON;
+    return function(val) {return val;};
+  })();
 
   window.Swap = Swap;
 
