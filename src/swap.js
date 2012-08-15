@@ -196,6 +196,24 @@
 
     'ref': function(param, el) {
       $(el).html($(param).html());
+    },
+
+    'show': function(param, el) {
+      if (param)
+        if (param.length > 0) {
+          $(el).find(param).show();
+          return;
+        }
+      $(el).show();
+    },
+
+    'hide': function(param, el) {
+      if (param)
+        if (param.length > 0) {
+          $(el).find(param).hide();
+          return;
+        }
+      $(el).hide();
     }
 
   };
