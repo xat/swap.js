@@ -47,6 +47,11 @@
     if (len !== 4 && len !== 3)
       return false;
 
+    if (pieces[2].substring(0, 1) === '.') {
+      o.neg = true;
+      pieces[2] = pieces[2].slice(1);
+    }
+
     if (isUd(this.tests[pieces[1]]) || isUd(this.conditionals[pieces[2]]))
       return false;
 
@@ -127,10 +132,13 @@
 
     $.each([self.listeners, self.domListeners], function(key, collection) {
       $.each(collection, function(key, o) {
-        var cacheKey = o.conditional+'#'+o.test;
+        var cacheKey = o.conditional+(o.neg?'#':'##')+o.test;
 
-        if (isUd(cache[cacheKey]))
+        if (isUd(cache[cacheKey])) {
           cache[cacheKey] = self.runTest(self.conditionals[o.conditional], o.test, type);
+          if (o.neg)
+            cache[cacheKey] = !cache[cacheKey];
+        }
 
         if (!isUd(self.lastCache[cacheKey]))
           if (self.lastCache[cacheKey] === cache[cacheKey])
