@@ -41,6 +41,47 @@
     }
   };
 
+  Swap.prototype._extractAttr = function(attr) {
+    var pieces = attr.name.toLowerCase().split('-'),o = {} ,len = pieces.length;
+
+    if (len !== 4 && len !== 3)
+      return false;
+
+    if (isUd(this.tests[pieces[1]]) || isUd(this.conditionals[pieces[2]]))
+      return false;
+
+    if (len === 4) {
+      if (isUd(this.processors[pieces[3]]))
+        return false;
+
+      o.processor = pieces[3];
+    } else
+      o.processor = this.config.defaultProcessor;
+
+    o.test = pieces[1];
+    o.conditional = pieces[2];
+    o.param = this._parseValue(attr.value);
+
+    return o;
+  };
+
+  Swap.prototype._parseValue = function(data) {
+    // This code is 'stolen' from jQuery
+    if ( typeof data === "string" ) {
+      try {
+        data = data === "true" ? true :
+            data === "false" ? false :
+                data === "null" ? null :
+                    + data + "" === data ? +data :
+                        /^(?:\{.*\}|\[.*\])$/.test(data) ? parseJSON(data) :
+                            data;
+      } catch(e) {}
+    } else {
+      data = undefined;
+    }
+    return data;
+  };
+
   Swap.prototype.addArea = function(selector) {
     var self = this;
 
@@ -49,42 +90,9 @@
           attributes = [].filter.call(this.attributes, function(at) { return (/^data-/).test(at.name); });
 
       $.each(attributes, function(key, attr) {
-        var pieces = attr.name.toLowerCase().split('-'), o = {}, len = pieces.length;
-
-        if (len !== 4 && len !== 3)
-          return true;
-
-        if (isUd(self.tests[pieces[1]]) || isUd(self.conditionals[pieces[2]]))
-          return true;
-
-        if (len === 4) {
-          if (isUd(self.processors[pieces[3]]))
-            return true;
-
-          o.processor = pieces[3];
-        } else
-          o.processor = self.config.defaultProcessor;
-
-        o.test = pieces[1];
-        o.conditional = pieces[2];
-        o.param = (function(data) {
-          // This code is 'stolen' from jQuery
-          if ( typeof data === "string" ) {
-            try {
-              data = data === "true" ? true :
-                  data === "false" ? false :
-                      data === "null" ? null :
-                          + data + "" === data ? +data :
-                              /^(?:\{.*\}|\[.*\])$/.test(data) ? parseJSON(data) :
-                                  data;
-            } catch(e) {}
-          } else {
-            data = undefined;
-          }
-          return data;
-        })(attr.value);
+        var o = self._extractAttr(attr);
+        if (!o) return true;
         o.el = el;
-
         self.domListeners.push(o);
       });
     });
@@ -182,7 +190,6 @@
     'attr': function(param, el) {
       if (typeof param !== 'object')
         return false;
-
       $(el).attr(param);
     },
 
