@@ -11,6 +11,8 @@
 
     var self = this;
 
+    var cfg = cfg || {};
+
     this.conditionals = cfg.conditionals || {};
     this.listeners = cfg.listeners || [];
     this.domListeners = [];
