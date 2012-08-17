@@ -6,12 +6,13 @@
     'use strict';
 
     this.config = {
-      defaultProcessor: 'inner'
+      defaultProcessor: 'inner',
+      defaultSelector: 'data-swap'
     };
 
     var self = this;
 
-    var cfg = cfg || {};
+    cfg = cfg || {};
 
     this.conditionals = cfg.conditionals || {};
     this.listeners = cfg.listeners || [];
@@ -29,7 +30,7 @@
 
   Swap.prototype.rebuild = function() {
     this.domListeners.length = 0;
-    this.addArea('[data-swap]');
+    this.addArea('['+this.config.defaultSelector+']');
   };
 
   Swap.prototype.cleanUp = function() {
