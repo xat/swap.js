@@ -101,3 +101,50 @@ describe('Parse Values', function() {
   });
 
 });
+
+describe('Rebuilding', function() {
+
+  var swap = new Swap();
+  swap.rebuild();
+
+  swap.conditionals.gt960 = {
+    'gt': 959
+  };
+
+  it('should add the correct number of dom listeners', function() {
+    expect(swap.domListeners.length).toBe(8);
+    swap.rebuild();
+    expect(swap.domListeners.length).toBe(8);
+    $tmp = $('[data-swap]').first();
+    $('[data-swap]').first().remove();
+    swap.rebuild();
+    expect(swap.domListeners.length).toBe(6);
+    $('body').append($tmp);
+  });
+
+  it('should use the correct selector', function() {
+    swap.config.defaultSelector = 'data-swap-sec';
+    swap.rebuild();
+    expect(swap.domListeners.length).toBe(2);
+  });
+
+});
+
+describe('CleanUp', function() {
+
+  var swap = new Swap();
+  swap.conditionals.gt960 = {
+    'gt': 959
+  };
+
+  it('should remove the obsolete domListeners', function() {
+    expect(swap.domListeners.length).toBe(8);
+    $tmp = $('[data-swap]').first();
+    $('[data-swap]').first().remove();
+    expect(swap.domListeners.length).toBe(8);
+    swap.cleanUp();
+    expect(swap.domListeners.length).toBe(6);
+    $('body').append($tmp);
+  });
+
+});
