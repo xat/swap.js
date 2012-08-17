@@ -2,12 +2,12 @@ module.exports = function(grunt) {
   grunt.initConfig({
     min: {
       min: {
-        src: ['src/swap.js'],
-        dest: 'build/swap.min.js'
+        src: ['swap.js'],
+        dest: 'swap.min.js'
       }
     },
     lint: {
-      files: ['src/swap.js']
+      files: ['swap.js']
     }
   });
 
