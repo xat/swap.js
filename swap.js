@@ -135,27 +135,32 @@
 
     $.each([self.listeners, self.domListeners], function(key, collection) {
       $.each(collection, function(key, o) {
-        var cacheKey = o.conditional+(o.neg?'#':'##')+o.test;
-
-        if (isUd(cache[cacheKey])) {
-          cache[cacheKey] = self.runTest(self.conditionals[o.conditional], o.test, type);
-          if (o.neg)
-            cache[cacheKey] = !cache[cacheKey];
-        }
-
-        if (!isUd(self.lastCache[cacheKey]))
-          if (self.lastCache[cacheKey] === cache[cacheKey])
-            return true;
-
-        if (cache[cacheKey])
-          if (typeof o.processor === 'function')
-            o.processor.call(self, o.param, o.el);
-          else
-            self.processors[o.processor](o.param, o.el);
+        self.checkOne(o, type, cache, false);
       });
     });
 
     self.lastCache = cache;
+  };
+
+  Swap.prototype.checkOne = function(o, type, cache, force) {
+    var cacheKey = o.conditional+(o.neg?'#':'##')+o.test;
+
+    if (isUd(cache[cacheKey])) {
+      cache[cacheKey] = self.runTest(self.conditionals[o.conditional], o.test, type);
+      if (o.neg)
+        cache[cacheKey] = !cache[cacheKey];
+    }
+
+    if (!force)
+      if (!isUd(self.lastCache[cacheKey]))
+        if (self.lastCache[cacheKey] === cache[cacheKey])
+          return true;
+
+    if (cache[cacheKey])
+      if (typeof o.processor === 'function')
+        o.processor.call(self, o.param, o.el);
+      else
+        self.processors[o.processor](o.param, o.el);
   };
 
   Swap.prototype.whens = {
